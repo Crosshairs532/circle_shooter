@@ -31,7 +31,7 @@ reciever_right = []
 reciever_left = []
 
 dcolor= [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]
-
+speed = 1
 game_over = False
 
 def convertToPreviousZone(x, y):
@@ -193,7 +193,7 @@ def backButton():
 
 def checkCollision():
 
-    global diamondBottom, receiver_position, board_left, board_right, score, diamondLeft, reciever_left, reciever_right, dcolor
+    global randY, diamondBottom, receiver_position, board_left, board_right, score, diamondLeft, reciever_left, reciever_right, dcolor
 
 
     #diamond x and y destructure
@@ -219,19 +219,21 @@ def checkCollision():
     if(((reciever_x_r >= diamond_x_bottom >= reciever_x_l) and ( -240 >= diamond_y_bottom >= -250 )) or ( (reciever_x_r >= diamond_x_left >= reciever_x_l) and ( -240 >= diamond_y_bottom >= -250 ) ) or ( (reciever_x_l <= diamond_x_right <= reciever_x_r) and ( -240 >= diamond_y_bottom >= -250 ) ) ):
         # print("bottom touched reciever...")
         dcolor = [random.uniform(0.0, 1.0), random.uniform(0.0, 1.0), random.uniform(0.0, 1.0)]
+
         return True
     else:
         return False
 
 def animate():
-    global randY, randx, receiver_position, score, game_over, diamondBottom, dcolor
+    global randY, randx, receiver_position, score, game_over, diamondBottom, dcolor, speed
+    print(randY)
     if(pause):
         return
     if(game_over):
         return
 
     diamond_y_bottom = diamondBottom[1]
-    randY -= random.choice([-1, -1])
+    randY -= random.choice([-1, -1])-speed
 
     if(randY >= 425):
         randY = 0
@@ -244,6 +246,8 @@ def animate():
         randY = 0
         randx = random.randint(-200, 200)
         game_over = False
+        speed += 0.2
+
     elif( -260 >= diamond_y_bottom ):
 
         game_over = True
@@ -259,7 +263,7 @@ def diamond():
     else:
         dcolor = [0.0,0.0,0.0]
 
-    findZone(-25 + randx, 180-randY , 0+randx, 200-randY )
+    findZone(-25 + randx , 180-randY , 0+randx, 200-randY )
     drawPoints(gx1, gy1, gx2, gy2, dcolor)
 
     findZone(0+ randx, 200-randY, 25 + randx, 180-randY)
@@ -360,14 +364,16 @@ def convert_coordinate(x,y):
     b = (W_Height/2) - y
     return a,b
 def mouseListener(button, state, x, y):
-    global ballx, bally, pause, score
+    global ballx, bally, pause, score, game_over, randY, speed
 
 
     if button == GLUT_LEFT_BUTTON:
+
         if (state == GLUT_DOWN):
             c_X, c_y = convert_coordinate(x, y)
             ballx, bally = c_X, c_y
-
+            print("ballx=>", ballx)
+            print("bally=>", bally)
             # -25, 250
             if not game_over:
                 if((ballx >= -25 and bally >= 340) and (ballx <= 25 and bally <= 400)):
@@ -375,6 +381,14 @@ def mouseListener(button, state, x, y):
             if ((ballx >=180 and bally >= 340) and (ballx <= 250 and bally <= 400)):
                 glutLeaveMainLoop()
                 print("GoodBye! score:", score)
+
+            if(( -221>= ballx >=-250 and 400>= bally >=360 )):
+
+                game_over = False
+                randY = 0
+                score = 0
+                speed = 0
+                print("starting over...")
     glutPostRedisplay()
 def keyboardListener(key, x, y):
     global receiver_position, board_left, board_right
