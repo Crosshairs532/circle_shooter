@@ -226,7 +226,7 @@ def checkCollision():
 
 def animate():
     global randY, randx, receiver_position, score, game_over, diamondBottom, dcolor, speed
-    print(randY)
+    # print(randY)
     if(pause):
         return
     if(game_over):
@@ -335,11 +335,11 @@ def display():
     glLoadIdentity()
     gluLookAt(0, 0, 200, 0, 0, 0, 0, 1, 0)
     glMatrixMode(GL_MODELVIEW)
-    glPointSize(10)
-    glBegin(GL_POINTS)
-    glColor3f(1.0, 1.0, 0.0)
-    glVertex2f(0, 0)
-    glEnd()
+    # glPointSize(10)
+    # glBegin(GL_POINTS)
+    # glColor3f(1.0, 1.0, 0.0)
+    # glVertex2f(0, 0)
+    # glEnd()
     crossButton()
     pause_start()
     backButton()
@@ -372,8 +372,8 @@ def mouseListener(button, state, x, y):
         if (state == GLUT_DOWN):
             c_X, c_y = convert_coordinate(x, y)
             ballx, bally = c_X, c_y
-            print("ballx=>", ballx)
-            print("bally=>", bally)
+            # print("ballx=>", ballx)
+            # print("bally=>", bally)
             # -25, 250
             if not game_over:
                 if((ballx >= -25 and bally >= 340) and (ballx <= 25 and bally <= 400)):
