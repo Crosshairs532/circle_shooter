@@ -212,9 +212,11 @@ def checkCollision():
                 score += 1
                 print(f"Score: {score}")
 
-
-
-                # print("checking...")
+                 # print("checking...")
+            if(b_y>220):
+                game_over = True
+                print("miss fire! game over")
+                return
     for i in rx:
         d_x, d_y, d_r = i
 
