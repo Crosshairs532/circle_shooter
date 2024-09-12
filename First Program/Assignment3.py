@@ -36,6 +36,7 @@ move_right = 0
 shooter = 0
 shooter_x = 0
 shooter_y = 0
+missed = 0
 def convertToPreviousZone(x, y):
 
     global convertedZone, actualZone
@@ -194,7 +195,7 @@ def backButton():
 
 
 def checkCollision():
-    global bullets, rx, score, game_over, shooter, global_cy, shooter_x, shooter_y
+    global bullets, rx, score, game_over, shooter, global_cy, shooter_x, shooter_y, missed
 
     # for i in range(len(bullets)):
     for i in bullets:
@@ -211,7 +212,9 @@ def checkCollision():
                 score += 1
                 print(f"Score: {score}")
 
-    # print("checking...")
+
+
+                # print("checking...")
     for i in rx:
         d_x, d_y, d_r = i
 
@@ -220,6 +223,14 @@ def checkCollision():
             print("game over!")
             game_over = True
             break
+
+        if (d_y < -260):
+            rx.remove(i)
+            missed += 1
+            if(missed ==3 ):
+                game_over = True
+                print("game over!")
+                return
 
 def animate():
     global randY, time, bullets
