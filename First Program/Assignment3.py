@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import random
+import math
 
 W_Width, W_Height = 500, 800
 
@@ -29,14 +30,12 @@ game_over = False
 ball_center = 200
 random_x = random.randint(-235, 235)
 rx = []
-
+bullets = []
 move_left = 0
 move_right = 0
-def randomX():
-    global rx, ry
-    # rx = [ random.randint(-235, 235) for i in range(5)]
-    ry = [random.randint(0, 200) for i in range(len(rx))]
-
+shooter = 0
+shooter_x = 0
+shooter_y = 0
 def convertToPreviousZone(x, y):
 
     global convertedZone, actualZone
@@ -194,17 +193,42 @@ def backButton():
     drawPoints(gx1, gy1, gx2, gy2, color)
 
 
-# def checkCollision():
-#
+def checkCollision():
+    global bullets, rx, score, game_over, shooter, global_cy, shooter_x, shooter_y
+
+    # for i in range(len(bullets)):
+    for i in bullets:
+        b_x, b_y, b_r, b_color = i
+        for j in (rx):
+
+            d_x, d_y, d_r = j
+            circle_distance = math.sqrt((b_x - d_x) ** 2 + (b_y - d_y) ** 2)
+
+            if circle_distance <= (b_r + d_r):
+
+                bullets.remove(i)
+                rx.remove(j)
+                score += 1
+                print(f"Score: {score}")
+
+    # print("checking...")
+    for i in rx:
+        d_x, d_y, d_r = i
+
+        shooter_bubble_distance = math.sqrt((shooter_x - d_x) ** 2 + (shooter_y - d_y) ** 2)
+        if (shooter_bubble_distance <=(15 + d_r)):
+            print("game over!")
+            game_over = True
+            break
 
 def animate():
-    global randY, time
+    global randY, time, bullets
     # print(randY)
     if(pause):
         return
     if(game_over):
         return
-    time+= 0.05
+    time += 0.05
     if(time>=5):
         time = 0
         crandx = random.randint(-235, 235)
@@ -213,11 +237,28 @@ def animate():
         rx.append([crandx, crandy, crandr])
 
     for i in rx:
-        print(i[1])
+        # print(i[1])
         i[1] -= speed
 
+    # bullet animate
+    for i in bullets:
+        i[1] += speed
+
+    checkCollision()
     glutPostRedisplay()
 
+
+def Bullets():
+    global bullets
+    # bullets
+
+    if(len(bullets)!=0):
+        for i in range(len(bullets)):
+            # print(bullets[i])
+
+            # def drawcircle2(x_center, y_center, radius, color, x, ranX):
+
+            drawcircle2(bullets[i][0], bullets[i][1] + 1, bullets[i][2], [1.0, 0.0, 0.0])
 
 
 
@@ -226,17 +267,18 @@ def diamond():
 
     if(len(rx)!=0):
         for i in range(len(rx)):
-            x, y , r= rx[i]
-            drawcircle2(0, y, r, [1.0, 0.0, 0.0], 0,  x)
+            x, y, r= rx[i]
+            # drawcircle2(0, y, r, [1.0, 0.0, 0.0], 0,  x)
+            drawcircle2(x, y, r, [1.0, 0.0, 0.0])
 
 
 def plot_circle_points(x_center, y_center, x, y, color):
-    global move_left
+    global move_left, shooter_x, shooter_y
     red, green, blue = color
     glPointSize(2)
     glBegin(GL_POINTS)
     glColor3f(red, green, blue)
-
+    shooter_x, shooter_y = x+move_left, y+y_center
     glVertex2f(+x+move_left, y_center + y) #zone - 1
     glVertex2f(-x+move_left, y_center + y) #zone - 2
     glVertex2f(+x+move_left, y_center - y) #zone - 6
@@ -247,29 +289,29 @@ def plot_circle_points(x_center, y_center, x, y, color):
     glVertex2f(-y+move_left, y_center - x) #zone - 4
     glEnd()
 
-def plot_circle_points2(x_center, y_center, x, y, color, ranX):
+def plot_circle_points2(x_center, y_center, x, y, color):
     red, green, blue = color
     global randY
-    print(f"y-center->{y_center}---- y-{y}")
+    # print(f" (x-center,y_center)=>( {x_center},{y_center} )    (x, y)=>( {x},{y} ")
     glPointSize(2)
     glBegin(GL_POINTS)
     glColor3f(red, green, blue)
-    glVertex2f(+x+ranX, y_center + y) #zone - 1
-    glVertex2f(-x+ranX, y_center + y ) #zone - 2
-    glVertex2f(+x+ranX, y_center - y) #zone - 6
-    glVertex2f(-x+ranX, y_center - y) #zone - 5
-    glVertex2f(+y+ranX, y_center + x) #zone - 0
-    glVertex2f(-y+ranX, y_center + x) #zone - 3
-    glVertex2f(+y+ranX, y_center - x) #zone - 7
-    glVertex2f(-y+ranX, y_center - x) #zone - 4
+    glVertex2f(+x+x_center, y_center + y) #zone - 1
+    glVertex2f(-x+x_center, y_center + y ) #zone - 2
+    glVertex2f(+x+x_center, y_center - y) #zone - 6
+    glVertex2f(-x+x_center, y_center - y) #zone - 5
+    glVertex2f(+y+x_center, y_center + x) #zone - 0
+    glVertex2f(-y+x_center, y_center + x) #zone - 3
+    glVertex2f(+y+x_center, y_center - x) #zone - 7
+    glVertex2f(-y+x_center, y_center - x) #zone - 4
     glEnd()
 
 def drawcircle(x_center, y_center, radius, color, x):
-
+    global shooter, move_left
     y = radius
     d = 1 - radius
     plot_circle_points(x_center, y_center, x, y, color)
-    # print(f"x->{x} y->{y}")
+
     while x < y:
         if d < 0:
             d += 2 * x + 3
@@ -277,15 +319,15 @@ def drawcircle(x_center, y_center, radius, color, x):
             d += 2 * (x - y) + 5
             y -= 1
         x += 1
-
+        shooter = x+move_left
         plot_circle_points(x_center, y_center, x, y, color)
 
 
-def drawcircle2(x_center, y_center, radius, color, x, ranX):
-
+def drawcircle2(x_center, y_center, radius, color):
+    x = 0
     y = radius
     d = 1 - radius
-    plot_circle_points2(x_center, y_center, x, y, color, ranX)
+    plot_circle_points2(x_center, y_center, x, y, color)
 
     while x < y:
         if d < 0:
@@ -295,7 +337,7 @@ def drawcircle2(x_center, y_center, radius, color, x, ranX):
             y -= 1
         x += 1
 
-        plot_circle_points2(x_center, y_center, x, y, color, ranX)
+        plot_circle_points2(x_center, y_center, x, y, color)
 
 def reciever():
 
@@ -334,6 +376,7 @@ def display():
     pause_start()
     backButton()
     reciever()
+    Bullets()
     if(game_over):
         pass
     else:
@@ -362,8 +405,8 @@ def mouseListener(button, state, x, y):
         if (state == GLUT_DOWN):
             c_X, c_y = convert_coordinate(x, y)
             ballx, bally = c_X, c_y
-            print("ballx=>", ballx)
-            print("bally=>", bally)
+            # print("ballx=>", ballx)
+            # print("bally=>", bally)
             # -25, 250
             if not game_over:
                 if((ballx >= -25 and bally >= 340) and (ballx <= 25 and bally <= 400)):
@@ -381,23 +424,25 @@ def mouseListener(button, state, x, y):
                 print("starting over...")
     glutPostRedisplay()
 def keyboardListener(key, x, y):
-    global move_left
+    global move_left, global_cy, shooter, shooter_x
     if(pause):
         return
     if not game_over:
-        if key==b" ":
-            print("space")
+        if key == b" ":
+            bullets.append([shooter, -200, 5,[1.0, 0.0, 0.0]])
+            # drawcircle(0, global_cy, 5, [1.0, 0.0, 0.0], 0)
         if key == b"a":
-            print("left")
-            # if(board_left <= -250 ):
-            #     return
+            print("left", shooter_x)
+            if(shooter_x <= -224 ):
+                return
             move_left -=5
         elif key == b"d":
-            print("right")
-            # if (pause):
-            #     return
-            # if( board_right >= 250):
-            #     return
+
+            print("right", shooter_x)
+            if (pause):
+                return
+            if( shooter_x >= 250):
+                return
             move_left += 5
         glutPostRedisplay()
 
